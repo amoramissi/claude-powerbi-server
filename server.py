@@ -69,7 +69,10 @@ def query_power_bi(natural_language_query):
             found_dataset_info = f"Success! Found dataset '{dataset['name']}' with ID: {dataset['id']}"
             print(f"<-- {found_dataset_info}")
             return found_dataset_info
-    
+    # --- Add a simple main page route for status checks ---
+@app.route("/")
+def status_check():
+    return "MCP Server is running and ready."
     # If the loop finishes without finding a match
     not_found_message = f"Dataset '{natural_language_query}' not found."
     print(f"<-- {not_found_message}")
