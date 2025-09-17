@@ -47,26 +47,37 @@ def list_powerbi_datasets(token):
 
 # --- Main function that our server will now use ---
 def query_power_bi(natural_language_query):
+    """
+    Takes a dataset name as a query, finds it, and returns its details.
+    """
     print("--> Getting Power BI access token...")
     token = get_powerbi_token()
-
+    
     if not token:
         return "Error: Could not authenticate with Power BI."
-
-    print("--> Authenticated. Now listing datasets...")
+    
+    print(f"--> Authenticated. Searching for dataset named: '{natural_language_query}'...")
     datasets = list_powerbi_datasets(token)
-
-    if datasets:
-        # For now, we'll just return the names of the first few datasets
-        dataset_names = [ds['name'] for ds in datasets['value']]
-        return f"Successfully connected! Found datasets: {', '.join(dataset_names[:3])}"
-    else:
+    
+    if not datasets:
         return "Could not retrieve datasets from Power BI."
+
+    # Loop through all datasets to find a match
+    for dataset in datasets['value']:
+        if dataset['name'].lower() == natural_language_query.lower():
+            # Found it! Return some useful info.
+            found_dataset_info = f"Success! Found dataset '{dataset['name']}' with ID: {dataset['id']}"
+            print(f"<-- {found_dataset_info}")
+            return found_dataset_info
+    
+    # If the loop finishes without finding a match
+    not_found_message = f"Dataset '{natural_language_query}' not found."
+    print(f"<-- {not_found_message}")
+    return not_found_message
 
 # --- Endpoints for Claude to use (No changes here) ---
 @app.route("/tools", methods=['GET'])
 def get_tools():
-    # ... (code is the same as before)
     tools = {
         "tools": [
             {
